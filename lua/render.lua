@@ -123,7 +123,7 @@ local function executeAndParse(ctx, path, parser)
     if sysname == "Darwin" then
         lsCmd = "gls -D " .. ctx.options.ls .. " " .. path -- Needs to install coeutils on macos
     else
-        lsCmd = "ls -D" .. ctx.options.ls .. " " .. path
+        lsCmd = "ls -D " .. ctx.options.ls .. " " .. path
     end
     local h = io.popen(lsCmd)
     while parseLine(ctx, path, parser, h:read("*line")) do
