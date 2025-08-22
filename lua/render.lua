@@ -119,10 +119,11 @@ local function executeAndParse(ctx, path, parser)
     -- The D option enables special dired output that is needed to avoid parsing filenames
     local sysname = vim.loop.os_uname().sysname
 
+    local lsCmd = nil
     if sysname == "Darwin" then
-        local lsCmd = "gls -D " .. ctx.options.ls .. " " .. path -- Needs to install coeutils on macos
+        lsCmd = "gls -D " .. ctx.options.ls .. " " .. path -- Needs to install coeutils on macos
     else
-        local lsCmd = "ls -D" .. ctx.options.ls .. " " .. path
+        lsCmd = "ls -D" .. ctx.options.ls .. " " .. path
     end
     local h = io.popen(lsCmd)
     while parseLine(ctx, path, parser, h:read("*line")) do
