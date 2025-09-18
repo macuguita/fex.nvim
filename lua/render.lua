@@ -115,19 +115,22 @@ local function parseLine(ctx, rootPath, parser, line)
 end
 
 local function executeAndParse(ctx, path, parser)
-    -- Invoke ls command and parse and render the result line by line
-    -- The D option enables special dired output that is needed to avoid parsing filenames
-    local sysname = vim.loop.os_uname().sysname
+  local sysname = vim.loop.os_uname().sysname
+  local cmd = sysname == "Darwin" and "gls" or "ls"
 
-    local lsCmd = nil
-    if sysname == "Darwin" then
-        lsCmd = "gls -D " .. ctx.options.ls .. " " .. path -- Needs to install coeutils on macos
-    else
-        lsCmd = "ls -D " .. ctx.options.ls .. " " .. path
+  local args = { "-D" }
+  if ctx.options.ls and #ctx.options.ls > 0 then
+    for _, opt in ipairs(vim.split(ctx.options.ls, "%s+")) do
+      table.insert(args, opt)
     end
-    local h = io.popen(lsCmd)
-    while parseLine(ctx, path, parser, h:read("*line")) do
-    end
+  end
+  table.insert(args, path)
+
+  local result = vim.system({cmd, unpack(args)}):wait()
+
+  for line in result.stdout:gmatch("[^\n]+") do
+    parseLine(ctx, path, parser, line)
+  end
 end
 
 M.render = function(ctx, path, selectName)
